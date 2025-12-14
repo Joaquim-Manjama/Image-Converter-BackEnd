@@ -10,20 +10,27 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 @Service
 public class ImageFileConversionService {
 
-    private static final String[] SUPPORTED_TYPES = {"jpeg", "png", "gif", "bmp", "wbmp"};
+    private final String[] SUPPORTED_TYPES = {"bmp", "gif", "jpg",
+            "png", "tiff", "jpeg"};
 
-    public ResponseEntity<byte[]> convert(MultipartFile file, String outputFormat) throws IOException {
-        if (!isSupportedType(file.getContentType())) {
-            System.out.println("Input File Type Not Supported");
-            return new ResponseEntity<>(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
-        }
+    private final String[] TYPE_DESCRIPTIONS = { "Uncompressed",
+            "Animation Support","Small file size (JPEG)",
+            "Lossless, transparent", "Tag Image File"  };
 
-        System.out.println("Converting " + file.getOriginalFilename() + " to converted-image." + outputFormat + "...");
+    public ResponseEntity<byte[]> convert(MultipartFile file,
+                                          String outputFormat) throws IOException {
+
+        System.out.println("Converting " + file.getOriginalFilename()
+                + " to converted-image." + outputFormat + "...");
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
@@ -33,46 +40,29 @@ public class ImageFileConversionService {
                 .toOutputStream(outputStream);
 
         System.out.println("Conversion Completed: Returning Image Blob...");
+        System.out.println("--------------------------------------------\n\n");
 
-        switch (outputFormat) {
-            case "jpeg":
-                return ResponseEntity.ok()
-                        .contentType(MediaType.IMAGE_JPEG)
-                        .header(
-                                HttpHeaders.CONTENT_DISPOSITION,
-                                "attachment; filename=\"converted-image."+ outputFormat + "\""
-                        )
-                        .body(outputStream.toByteArray());
-
-            case "gif":
-                return ResponseEntity.ok()
-                        .contentType(MediaType.IMAGE_GIF)
-                        .header(
-                                HttpHeaders.CONTENT_DISPOSITION,
-                                "attachment; filename=\"converted-image."+ outputFormat + "\""
-                        )
-                        .body(outputStream.toByteArray());
-
-            default:
-                return ResponseEntity.ok()
-                        .contentType(MediaType.IMAGE_PNG)
-                        .header(
-                                HttpHeaders.CONTENT_DISPOSITION,
-                                "attachment; filename=\"converted-image."+ outputFormat + "\""
-                        )
-                        .body(outputStream.toByteArray());
-        }
-
+        return ResponseEntity.ok()
+                    .contentType(MediaType.IMAGE_JPEG)
+                    .header(
+                            HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment; filename=\"converted-image."+ outputFormat + "\""
+                    )
+                    .body(outputStream.toByteArray());
     }
 
-    private boolean isSupportedType(String type) {
-        String input = type.replace("image/", "");
+    public ResponseEntity<List<String>> getSupportedTypes() {
+        String[] supportedTypes = new String[SUPPORTED_TYPES.length - 1];
 
-        for (String supportedType : SUPPORTED_TYPES) {
-            if (supportedType.equals(input)) {
-                return true;
-            }
+        // REMOVING THE JPEG (EXTRA)
+        for (int i = 0; i < SUPPORTED_TYPES.length - 1; i++) {
+            supportedTypes[i] = SUPPORTED_TYPES[i];
         }
-        return false;
+
+        return ResponseEntity.ok().body(Arrays.stream(supportedTypes).toList());
+    }
+
+    public ResponseEntity<List<String>> getTypesDescriptions() {
+        return ResponseEntity.ok().body(Arrays.stream(TYPE_DESCRIPTIONS).toList());
     }
 }

@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
-@RequestMapping("convert-image")
 public class ImageFileConversionController {
 
     private ImageFileConversionService service;
@@ -18,9 +18,25 @@ public class ImageFileConversionController {
         this.service = service;
     }
 
-    @PostMapping
+    @PostMapping("convert-image")
     public ResponseEntity<byte[]> save(@RequestParam("image") MultipartFile file, @RequestParam("format") String outputFormat) throws IOException {
         System.out.println("Server Received Request");
-        return service.convert(file, outputFormat);
+
+        if (file.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return this.service.convert(file, outputFormat);
     }
+
+    @GetMapping("/supported-types")
+    public ResponseEntity<List<String>> getSupportedTypes() throws IOException {
+        return this.service.getSupportedTypes();
+    }
+
+    @GetMapping("/type-descriptions")
+    public ResponseEntity<List<String>> getTypeDescriptions() throws IOException {
+        return this.service.getTypesDescriptions();
+    }
+
 }
