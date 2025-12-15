@@ -1,7 +1,6 @@
 package Joaquim_Manjama.Image_Converter.Backend.controller;
 
 import Joaquim_Manjama.Image_Converter.Backend.service.ImageFileConversionService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;

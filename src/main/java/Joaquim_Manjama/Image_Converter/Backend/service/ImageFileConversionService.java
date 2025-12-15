@@ -2,7 +2,6 @@ package Joaquim_Manjama.Image_Converter.Backend.service;
 
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -10,21 +9,19 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 @Service
 public class ImageFileConversionService {
 
     private final String[] SUPPORTED_TYPES = {"bmp", "gif", "jpg",
-            "png", "tiff", "jpeg"};
+            "png", "tiff", "webp", "jpeg"};
 
     private final String[] TYPE_DESCRIPTIONS = { "Uncompressed",
             "Animation Support","Small file size (JPEG)",
-            "Lossless, transparent", "Tag Image File"  };
+            "Lossless, transparent", "Tag Image File", "Modern Image Format "  };
+
 
     public ResponseEntity<byte[]> convert(MultipartFile file,
                                           String outputFormat) throws IOException {
@@ -39,11 +36,13 @@ public class ImageFileConversionService {
                 .outputFormat(outputFormat)     // convert to Desired format
                 .toOutputStream(outputStream);
 
+        MediaType mediaType = MediaType.parseMediaType("image/" + outputFormat);
+
         System.out.println("Conversion Completed: Returning Image Blob...");
         System.out.println("--------------------------------------------\n\n");
 
         return ResponseEntity.ok()
-                    .contentType(MediaType.IMAGE_JPEG)
+                    .contentType(mediaType)
                     .header(
                             HttpHeaders.CONTENT_DISPOSITION,
                             "attachment; filename=\"converted-image."+ outputFormat + "\""
