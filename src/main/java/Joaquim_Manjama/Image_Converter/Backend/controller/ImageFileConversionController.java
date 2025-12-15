@@ -17,7 +17,7 @@ public class ImageFileConversionController {
         this.service = service;
     }
 
-    @PostMapping("convert-image")
+    @PostMapping("/convert-image")
     public ResponseEntity<byte[]> save(@RequestParam("image") MultipartFile file, @RequestParam("format") String outputFormat) throws IOException {
         System.out.println("Server Received Request");
 
